@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -11,19 +12,43 @@ namespace MediFiler
 {
     public class FilerModel
     {
-        public List<Folder> ListOfFolders = new List<Folder>();
-        public List<File> LoadedFiles = new List<File>();
+        public List<Folder> ListOfFolders { get; } = new List<Folder>();
+        private List<File> LoadedFiles = new List<File>();
 
-        private int FileIndex;
+        public int FileIndex { get; private set; }
+        public bool Loaded { get; private set; }
 
-        public FilerModel()
+    public FilerModel()
         {
 
         }
 
-        public BitmapImage GetContent()
+        public void LoadContext()
         {
-            return LoadedFiles[FileIndex].image;
+            LoadFilesFromRoot();
+            Loaded = true;
+        }
+
+        public void LoadFilesFromRoot()
+        {
+            // TODO
+            LoadedFiles.AddRange(ListOfFolders[0].ListOfFiles);
+        }
+
+        public void ClearContext()
+        {
+            FileIndex = 0;
+            ListOfFolders.Clear();
+            LoadedFiles.Clear();
+        }
+
+        public void ViewRelative(int cursor)
+        {
+            // Avoid going outside list
+            if (FileIndex + cursor >= 0 && FileIndex + cursor < LoadedFiles.Count)
+            {
+                FileIndex += cursor;
+            }
         }
 
         /*public WriteableBitmap ConvertWebPtoBitmap()

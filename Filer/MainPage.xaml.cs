@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Filer;
 using IStorageItem = Windows.Storage.IStorageItem;
@@ -46,6 +50,7 @@ namespace MediFiler
         public MainPage()
         {
             this.InitializeComponent();
+            Window.Current.CoreWindow.KeyDown += Page_KeyDown;
 
             model = new FilerModel();
             FilerView view = new FilerView(model, this);
@@ -97,52 +102,71 @@ namespace MediFiler
                 IReadOnlyList<IStorageItem> items = await e.DataView.GetStorageItemsAsync();
                 if (items.Count > 0)
                 {
-                    if (items[0] is StorageFolder)
+                    model.ClearContext();
+
+                    if (items[0] is StorageFolder folder)
                     {
                         Folder rootFolder = new Folder(items[0].Path, null);
+                        Task t = GetFolderStructure(folder, rootFolder);
+                        await t;
+
+                        // TODO
                         model.ListOfFolders.Add(rootFolder);
-                        GetFolderStructure((StorageFolder) items[0], rootFolder);
                     }
+                    controller.InitializeView();
                     controller.RefreshView();
                 }
             }
         }
 
         // Goes through a folder and its subfolders adding each directory and file to a list
-        private static async void GetFolderStructure(IStorageFolder folder, Folder parent)
+        private async Task GetFolderStructure(IStorageFolder folder, Folder parent)
         {
             IReadOnlyList<IStorageItem> items = await folder.GetItemsAsync();
 
             foreach (IStorageItem item in items)
             {
-                if (item is StorageFile)
+                if (item is StorageFolder)
                 {
-                    parent.AddFiles(new File(item.Path));
+                    // Add folder, and scan it as well
+                    Folder foundFolder = new Folder(item.Path, parent);
+                    parent.AddFolders(foundFolder);
+                    model.ListOfFolders.Add(foundFolder);
+
+                    Task t = GetFolderStructure((StorageFolder) item, foundFolder);
+                    await t;
                 }
                 else
                 {
-                    Folder foundFolder = new Folder(item.Path, parent);
-                    parent.AddFolders(foundFolder);
-                    GetFolderStructure((StorageFolder) item, foundFolder);
+                    // Add found files
+                    parent.AddFiles(new File((StorageFile) item));
                 }
             }
         }
 
-        private void Page_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+
+        // Handles keyboard inputs
+        private void Page_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("h");
-            switch (e.Key)
+            switch (e.VirtualKey)
             {
                 case VirtualKey.Right:
-                    //ContentPosition++;
-                    //RefreshView();
+                    controller.Move(1);
                     break;
-
                 case VirtualKey.Left:
-                    //ContentPosition--;
-                    //RefreshView();
+                    controller.Move(-1);
                     break;
             }
+        }
+
+        // Allows for navigation through scrolling
+        private void ImgMainContent_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        {
+            int mouseDelta = e.GetCurrentPoint(ContentGrid).Properties.MouseWheelDelta;
+            if (mouseDelta > 0)
+                controller.Move(-1);
+            else
+                controller.Move(1);
         }
     }
 }

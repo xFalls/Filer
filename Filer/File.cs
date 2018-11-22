@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace Filer
 {
     public class File
     {
-        private string path;
+        public string path;
+        public StorageFile file;
         public BitmapImage image { get; set; }
 
-        public File(string path)
+        public File(StorageFile file)
         {
-            this.path = path;
-            Debug.Print(path + " added\n");
+            this.file = file;
         }
     }
 }

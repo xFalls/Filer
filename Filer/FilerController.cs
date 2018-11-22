@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -18,47 +19,28 @@ namespace MediFiler
             this.view = view;
         }
 
+        public void Move(int cursor)
+        {
+            model.ViewRelative(cursor);
+            RefreshView();
+        }
+
+        public void InitializeView()
+        {
+            // Loads root files into active context TODO temp
+            model.LoadContext();
+        }
+
 
         public async void RefreshView()
         {
-            StorageFile storageFile = model.GetContent();
-
-            if (storageFile.FileType == ".webp")
+            // Don't do anything if nothing is loaded
+            if (!model.Loaded)
             {
-
-                byte[] bytes;
-
-                using (var stream3 = await storageFile.OpenReadAsync())
-                {
-                    bytes = new byte[stream3.Size];
-                    using (var reader = new DataReader(stream3))
-                    {
-                        await reader.LoadAsync((uint)stream3.Size);
-                        reader.ReadBytes(bytes);
-                    }
-                }
-
-                // Create an instance of the decoder
-                var webp = new WebPDecoder();
-
-                // Decode to BGRA (Bitmaps use this format)
-                var pixelData = (await webp.DecodeBgraAsync(bytes)).ToArray();
-
-                // Get the size
-                var size = await webp.GetSizeAsync(bytes);
-
-                // With the size of the webp, create a WriteableBitmap
-				var bitmap = new WriteableBitmap((int)size.Width, (int)size.Height);
-
-                // Write the pixel data to the buffer
-                var stream = bitmap.PixelBuffer.AsStream();
-                await stream.WriteAsync(pixelData, 0, pixelData.Length);
-
-                // Set the bitmap
-                view.window.imgMainContent.Source = bitmap;
-
                 return;
             }
+
+            StorageFile storageFile = model.ListOfFolders[0].ListOfFiles[model.FileIndex].file;
 
             var bitmapImage = new BitmapImage();
             bitmapImage.SetSource(await storageFile.OpenAsync(FileAccessMode.Read));
