@@ -21,7 +21,7 @@ namespace MediFiler
 
         public async void RefreshView()
         {
-            StorageFile storageFile = model.ContentList[model.ContentPosition].content;
+            StorageFile storageFile = model.GetContent();
 
             if (storageFile.FileType == ".webp")
             {
@@ -37,7 +37,6 @@ namespace MediFiler
                         reader.ReadBytes(bytes);
                     }
                 }
-
 
                 // Create an instance of the decoder
                 var webp = new WebPDecoder();
@@ -64,6 +63,7 @@ namespace MediFiler
             var bitmapImage = new BitmapImage();
             bitmapImage.SetSource(await storageFile.OpenAsync(FileAccessMode.Read));
             bitmapImage.DecodePixelHeight = (int)view.window.ContentGrid.ActualHeight;
+
             // Set the image on the main page to the dropped image
             view.window.imgMainContent.Source = bitmapImage;
         }

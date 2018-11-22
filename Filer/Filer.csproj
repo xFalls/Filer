@@ -119,9 +119,11 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="File.cs" />
     <Compile Include="FilerController.cs" />
     <Compile Include="FilerModel.cs" />
     <Compile Include="FilerView.cs" />
+    <Compile Include="Folder.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

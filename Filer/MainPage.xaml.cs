@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
+using Filer;
+using IStorageItem = Windows.Storage.IStorageItem;
 
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -37,7 +41,7 @@ namespace MediFiler
     public sealed partial class MainPage : Page
     {
         private FilerModel model;
-        FilerController controller;
+        private FilerController controller;
 
         public MainPage()
         {
@@ -90,11 +94,36 @@ namespace MediFiler
         {
             if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
-                var items = await e.DataView.GetStorageItemsAsync();
+                IReadOnlyList<IStorageItem> items = await e.DataView.GetStorageItemsAsync();
                 if (items.Count > 0)
                 {
-                    model.ContentList.Add(new ImageContent(items[0] as StorageFile));
+                    if (items[0] is StorageFolder)
+                    {
+                        Folder rootFolder = new Folder(items[0].Path, null);
+                        model.ListOfFolders.Add(rootFolder);
+                        GetFolderStructure((StorageFolder) items[0], rootFolder);
+                    }
                     controller.RefreshView();
+                }
+            }
+        }
+
+        // Goes through a folder and its subfolders adding each directory and file to a list
+        private static async void GetFolderStructure(IStorageFolder folder, Folder parent)
+        {
+            IReadOnlyList<IStorageItem> items = await folder.GetItemsAsync();
+
+            foreach (IStorageItem item in items)
+            {
+                if (item is StorageFile)
+                {
+                    parent.AddFiles(new File(item.Path));
+                }
+                else
+                {
+                    Folder foundFolder = new Folder(item.Path, parent);
+                    parent.AddFolders(foundFolder);
+                    GetFolderStructure((StorageFolder) item, foundFolder);
                 }
             }
         }
