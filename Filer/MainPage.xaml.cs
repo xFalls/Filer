@@ -187,5 +187,18 @@ namespace MediFiler
             else
                 controller.Move(1);
         }
+
+
+        // Show folderlist on mouse hover
+        private void Grid_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            FolderList.Visibility = Visibility.Visible;
+        }
+
+        // Hide folderlist on mouse leave
+        private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            FolderList.Visibility = Visibility.Collapsed;
+        }
     }
 }

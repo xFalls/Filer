@@ -24,9 +24,6 @@ namespace Filer
         }
 
 
-        
-
-
         public void AddFolder(Folder newFolders)
         {
             FolderChildren.Add(newFolders);
@@ -37,9 +34,20 @@ namespace Filer
             ListOfFiles.Add(files);
         }
 
+        public int SubfolderFileCounter()
+        {
+            int currentTotal = ListOfFiles.Count;
+            foreach (Folder folderChild in FolderChildren)
+            {
+                currentTotal += folderChild.SubfolderFileCounter();
+            }
+
+            return currentTotal;
+        }
+
         public override string ToString()
         {
-            return "[" + ListOfFiles.Count + "] " + Name;
+            return "[" + ListOfFiles.Count + "/" + SubfolderFileCounter() + "] " + Name;
         }
     }
 }

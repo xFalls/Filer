@@ -21,41 +21,18 @@
         <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Stretch="Uniform" Source="Assets/SplashScreen.png" RequestedTheme="Default"/>
 
         <!--Folder hierarchy-->
-        <Grid Padding="0" Width="350" HorizontalAlignment="Left">
+        <Grid Padding="0" Width="350" HorizontalAlignment="Left" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0"/>
             </Grid.Background>
 
-            <ScrollViewer HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+            <ScrollViewer Name="FolderList" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Visibility="Collapsed">
                 <StackPanel Name="FolderPanel" Orientation="Vertical" HorizontalAlignment="Stretch">
                     <StackPanel.Background>
                         <AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}" TintOpacity="0.2"/>
                     </StackPanel.Background>
-
-                    <!--<Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="8,4,8,5">sfsfdsdf</Button>-->
                 </StackPanel>
             </ScrollViewer>
-            <!--<SplitView IsPaneOpen="True"
-                       DisplayMode="Inline"
-                       OpenPaneLength="296">
-                <SplitView.Pane>
-                    <TreeView Name="FolderTree"
-                              CanReorderItems="False"
-                              CanDragItems="False"
-                              ItemsSource="{x:Bind FolderHierarchy}">
-                        <TreeView.ItemTemplate>
-                            <DataTemplate x:DataType="filer:Folder">
-                                <TreeViewItem ItemsSource="{x:Bind FolderChildren}"
-                                              Content="{x:Bind Name}"
-                                              IsExpanded="True"/>
-                            </DataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
-                </SplitView.Pane>
-            </SplitView>-->
         </Grid>
-
     </Grid>
-
-
 </Page>
