@@ -21,11 +21,21 @@
         <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Stretch="Uniform" Source="Assets/SplashScreen.png" RequestedTheme="Default"/>
 
         <!--Folder hierarchy-->
-        <Grid Padding="0">
+        <Grid Padding="0" Width="350" HorizontalAlignment="Left">
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0"/>
             </Grid.Background>
-            <SplitView IsPaneOpen="True"
+
+            <ScrollViewer HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                <StackPanel Name="FolderPanel" Orientation="Vertical" HorizontalAlignment="Stretch">
+                    <StackPanel.Background>
+                        <AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}" TintOpacity="0.2"/>
+                    </StackPanel.Background>
+
+                    <!--<Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="8,4,8,5">sfsfdsdf</Button>-->
+                </StackPanel>
+            </ScrollViewer>
+            <!--<SplitView IsPaneOpen="True"
                        DisplayMode="Inline"
                        OpenPaneLength="296">
                 <SplitView.Pane>
@@ -42,7 +52,7 @@
                         </TreeView.ItemTemplate>
                     </TreeView>
                 </SplitView.Pane>
-            </SplitView>
+            </SplitView>-->
         </Grid>
 
     </Grid>

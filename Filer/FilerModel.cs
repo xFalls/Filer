@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Filer;
 
 namespace MediFiler
@@ -14,9 +15,12 @@ namespace MediFiler
         public bool Loaded { get; private set; }
 
 
-        public void LoadContext()
+        public void LoadContext(Folder folder)
         {
-            LoadedFiles.AddRange(RootFolder.ListOfFiles);
+            ClearContext();
+
+            ActiveFolder = folder;
+            LoadedFiles.AddRange(folder.ListOfFiles);
             Loaded = true;
         }
 
@@ -24,8 +28,8 @@ namespace MediFiler
         public void ClearContext()
         {
             FileIndex = 0;
-            RootFolder = null;
             LoadedFiles.Clear();
+            ActiveFolder = null;
         }
 
         public void ViewRelative(int cursor)
@@ -37,9 +41,10 @@ namespace MediFiler
             }
         }
 
-        /*public WriteableBitmap ConvertWebPtoBitmap()
+        public static bool IsImageExtension(string source)
         {
-
-        }*/
+            return (source.EndsWith(".png") || source.EndsWith(".jpg") || source.EndsWith(".jpeg") ||
+                    source.EndsWith(".webp") || source.EndsWith(".gif") || source.EndsWith(".bmp"));
+        }
     }
 }

@@ -39,7 +39,7 @@ namespace Filer
 
         public override string ToString()
         {
-            return Name;
+            return "[" + ListOfFiles.Count + "] " + Name;
         }
     }
 }

@@ -11,6 +11,7 @@ using Windows.Storage;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Filer;
@@ -22,19 +23,6 @@ namespace MediFiler
 
 
 {
-    public class Item
-    {
-        public string Name { get; set; }
-        public ObservableCollection<Item> Children { get; set; } = new ObservableCollection<Item>();
-
-        public override string ToString()
-        {
-            return Name;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-    }
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -42,9 +30,6 @@ namespace MediFiler
     {
         private readonly FilerModel model;
         private readonly FilerController controller;
-
-        public ObservableCollection<Folder> FolderHierarchy = new ObservableCollection<Folder>();
-
 
 
         public MainPage()
@@ -61,12 +46,40 @@ namespace MediFiler
 
         public void RefreshFolderList()
         {
-            FolderHierarchy.Clear();
-            FolderHierarchy.Add(model.RootFolder);
+            FolderPanel.Children.Clear();
+            BuildFolderList(model.RootFolder, 0);
+        }
+
+        public void BuildFolderList(Folder folder, int depth)
+        {
+            depth++;
+            Button folderButton = new Button
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                Padding = new Thickness(25*depth,4,8,5),
+                Content = folder.ToString(),
+                Tag = folder
+            };
+            folderButton.Click += FolderButton_Click;
+
+            FolderPanel.Children.Add(folderButton);
+
+            foreach (Folder folderChild in folder.FolderChildren)
+            {
+                BuildFolderList(folderChild, depth);
+            }
         }
 
 
         //// Window events /////////////////////////////////////////////////////////
+
+        // Load folder represented by clicked button
+        private void FolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            Folder clicked = (Folder) ((Button) e.OriginalSource).Tag;
+            controller.LoadNewFolder(clicked);
+        }
 
 
         // Adjusts image resolution according to window size
@@ -85,14 +98,14 @@ namespace MediFiler
             }
         }
 
-
+        // Display popout when dragging files over the window
         private void OnFileDragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
 
             if (e.DragUIOverride != null)
             {
-                e.DragUIOverride.Caption = "Add files";
+                e.DragUIOverride.Caption = "Add folder";
                 e.DragUIOverride.IsContentVisible = true;
             }
         }
@@ -118,12 +131,10 @@ namespace MediFiler
                         Task t = GetFolderStructure(folder, rootFolder);
                         await t;
 
-                        // TODO
-                        //model.ListOfFolders.Add(rootFolder);
                         model.RootFolder = rootFolder;
                     }
-                    controller.InitializeView();
-                    controller.RefreshView();
+                    // Load the root folder on new file drop
+                    controller.LoadNewFolder(model.RootFolder);
                 }
             }
         }
