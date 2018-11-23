@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace Filer
+namespace ReFiler
 {
     public class File
     {

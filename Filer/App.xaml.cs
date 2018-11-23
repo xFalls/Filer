@@ -14,9 +14,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using MediFiler;
+using ReFiler;
 
-namespace Filer
+namespace ReFiler
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

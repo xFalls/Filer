@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Filer;
+using ReFiler;
 
-namespace MediFiler
+namespace ReFiler
 {
     public class FilerModel
     {

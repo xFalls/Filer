@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Windows.Storage;
 using Windows.UI.Xaml.Controls;
-using Filer.Annotations;
+using ReFiler.Annotations;
 
-namespace Filer
+namespace ReFiler
 {
     public class Folder
     {

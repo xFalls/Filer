@@ -14,12 +14,12 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
-using Filer;
-using Filer.Annotations;
+using ReFiler;
+using ReFiler.Annotations;
 using IStorageItem = Windows.Storage.IStorageItem;
 
 
-namespace MediFiler
+namespace ReFiler
 
 
 {

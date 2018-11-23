@@ -4,9 +4,9 @@ using System.Linq;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.UI.Xaml.Media.Imaging;
-using Filer;
+using ReFiler;
 
-namespace MediFiler
+namespace ReFiler
 {
     public class FilerController
     {

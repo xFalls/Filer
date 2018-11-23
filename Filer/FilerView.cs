@@ -3,7 +3,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
-namespace MediFiler
+namespace ReFiler
 {
     public class FilerView
     {
