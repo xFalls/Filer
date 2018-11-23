@@ -1,28 +1,35 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Windows.Storage;
+using Windows.UI.Xaml.Controls;
+using Filer.Annotations;
 
 namespace Filer
 {
     public class Folder
     {
-        private List<Folder> ListOfFolders = new List<Folder>();
+        public ObservableCollection<Folder> FolderChildren { get; set; } = new ObservableCollection<Folder>();
         public List<File> ListOfFiles = new List<File>();
 
-        private string path;
+        public StorageFolder folder;
+        public string Name;
 
-        public Folder(string path, Folder parentFolder)
+        public Folder(StorageFolder folder, Folder parentFolder)
         {
-            this.path = path;
+            this.folder = folder;
+            Name = folder.Name;
         }
 
 
         
 
 
-        public void AddFolders(Folder folders)
+        public void AddFolder(Folder newFolders)
         {
-            ListOfFolders.Add(folders);
+            FolderChildren.Add(newFolders);
         }
 
         public void AddFiles(File files)
@@ -30,5 +37,9 @@ namespace Filer
             ListOfFiles.Add(files);
         }
 
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

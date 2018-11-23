@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
-using Universal.WebP;
 
 namespace MediFiler
 {
     public class FilerController
     {
-        private FilerModel model;
-        private FilerView view;
+        private readonly FilerModel model;
+        private readonly FilerView view;
 
         public FilerController(FilerModel model, FilerView view)
         {
@@ -29,18 +26,22 @@ namespace MediFiler
         {
             // Loads root files into active context TODO temp
             model.LoadContext();
+
+            view.window.RefreshFolderList();
         }
 
 
         public async void RefreshView()
         {
             // Don't do anything if nothing is loaded
-            if (!model.Loaded)
+            if (!model.Loaded || model.RootFolder.ListOfFiles.Count == 0)
             {
                 return;
             }
+            
 
-            StorageFile storageFile = model.ListOfFolders[0].ListOfFiles[model.FileIndex].file;
+
+            StorageFile storageFile = model?.RootFolder.ListOfFiles[model.FileIndex].file;
 
             var bitmapImage = new BitmapImage();
             bitmapImage.SetSource(await storageFile.OpenAsync(FileAccessMode.Read));

@@ -1,44 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Storage;
-using Windows.Storage.Streams;
-using Windows.UI.Xaml.Media.Imaging;
+﻿using System.Collections.Generic;
 using Filer;
-using Universal.WebP;
 
 namespace MediFiler
 {
     public class FilerModel
     {
-        public List<Folder> ListOfFolders { get; } = new List<Folder>();
+        //public List<Folder> ListOfFolders { get; } = new List<Folder>();
+        public Folder RootFolder { get; set; }
         private List<File> LoadedFiles = new List<File>();
+        public Folder ActiveFolder;
 
         public int FileIndex { get; private set; }
         public bool Loaded { get; private set; }
 
-    public FilerModel()
-        {
-
-        }
 
         public void LoadContext()
         {
-            LoadFilesFromRoot();
+            LoadedFiles.AddRange(RootFolder.ListOfFiles);
             Loaded = true;
         }
 
-        public void LoadFilesFromRoot()
-        {
-            // TODO
-            LoadedFiles.AddRange(ListOfFolders[0].ListOfFiles);
-        }
 
         public void ClearContext()
         {
             FileIndex = 0;
-            ListOfFolders.Clear();
+            RootFolder = null;
             LoadedFiles.Clear();
         }
 

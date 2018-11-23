@@ -5,16 +5,46 @@
     xmlns:local="using:MediFiler"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:filer="using:Filer"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" SizeChanged="Page_SizeChanged" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
 
 
-    <Grid x:Name="ContentGrid" x:FieldModifier="public" AllowDrop="True" DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" PointerWheelChanged="ImgMainContent_PointerWheelChanged">
+    <Grid x:Name="ContentGrid" x:FieldModifier="public" AllowDrop="True" DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" PointerWheelChanged="Grid_PointerWheelChanged">
+        <Grid.Background>
+            <AcrylicBrush TintColor="#CC000000" TintOpacity="1" BackgroundSource="HostBackdrop" Opacity="0.75"/>
+        </Grid.Background>
 
 
-        <GridView x:Name="FileList" x:FieldModifier="public" ItemsSource="{Binding Files}" IsItemClickEnabled="True" SelectionMode="None" BorderThickness="0,0,0,0"/>
+        <GridView x:Name="FileList" x:FieldModifier="public" ItemsSource="{Binding Files}" IsItemClickEnabled="True" SelectionMode="None" BorderThickness="0,0,0,0" Opacity="0"/>
 
         <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Stretch="Uniform" Source="Assets/SplashScreen.png" RequestedTheme="Default"/>
+
+        <!--Folder hierarchy-->
+        <Grid Padding="0">
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity="0"/>
+            </Grid.Background>
+            <SplitView IsPaneOpen="True"
+                       DisplayMode="Inline"
+                       OpenPaneLength="296">
+                <SplitView.Pane>
+                    <TreeView Name="FolderTree"
+                              CanReorderItems="False"
+                              CanDragItems="False"
+                              ItemsSource="{x:Bind FolderHierarchy}">
+                        <TreeView.ItemTemplate>
+                            <DataTemplate x:DataType="filer:Folder">
+                                <TreeViewItem ItemsSource="{x:Bind FolderChildren}"
+                                              Content="{x:Bind Name}"
+                                              IsExpanded="True"/>
+                            </DataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </SplitView.Pane>
+            </SplitView>
+        </Grid>
+
     </Grid>
 
 

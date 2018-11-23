@@ -1,51 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI.Core;
-using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Filer;
+using Filer.Annotations;
 using IStorageItem = Windows.Storage.IStorageItem;
 
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
 namespace MediFiler
+
+
 {
-
-
-    public class Content
+    public class Item
     {
-        public StorageFile content;
+        public string Name { get; set; }
+        public ObservableCollection<Item> Children { get; set; } = new ObservableCollection<Item>();
 
-        public Content(StorageFile file)
+        public override string ToString()
         {
-            content = file;
+            return Name;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
     }
-
-    public class ImageContent : Content
-    {
-        public ImageContent(StorageFile file) : base(file)
-        {
-        }
-    }
-
-
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private FilerModel model;
-        private FilerController controller;
+        private readonly FilerModel model;
+        private readonly FilerController controller;
+
+        public ObservableCollection<Folder> FolderHierarchy = new ObservableCollection<Folder>();
+
+
 
         public MainPage()
         {
@@ -56,7 +56,15 @@ namespace MediFiler
             FilerView view = new FilerView(model, this);
             controller = new FilerController(model, view);
         }
-    
+
+
+
+        public void RefreshFolderList()
+        {
+            FolderHierarchy.Clear();
+            FolderHierarchy.Add(model.RootFolder);
+        }
+
 
         //// Window events /////////////////////////////////////////////////////////
 
@@ -106,12 +114,13 @@ namespace MediFiler
 
                     if (items[0] is StorageFolder folder)
                     {
-                        Folder rootFolder = new Folder(items[0].Path, null);
+                        Folder rootFolder = new Folder((StorageFolder) items[0], null);
                         Task t = GetFolderStructure(folder, rootFolder);
                         await t;
 
                         // TODO
-                        model.ListOfFolders.Add(rootFolder);
+                        //model.ListOfFolders.Add(rootFolder);
+                        model.RootFolder = rootFolder;
                     }
                     controller.InitializeView();
                     controller.RefreshView();
@@ -129,9 +138,8 @@ namespace MediFiler
                 if (item is StorageFolder)
                 {
                     // Add folder, and scan it as well
-                    Folder foundFolder = new Folder(item.Path, parent);
-                    parent.AddFolders(foundFolder);
-                    model.ListOfFolders.Add(foundFolder);
+                    Folder foundFolder = new Folder((StorageFolder) item, parent);
+                    parent.AddFolder(foundFolder);
 
                     Task t = GetFolderStructure((StorageFolder) item, foundFolder);
                     await t;
@@ -160,7 +168,7 @@ namespace MediFiler
         }
 
         // Allows for navigation through scrolling
-        private void ImgMainContent_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        private void Grid_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             int mouseDelta = e.GetCurrentPoint(ContentGrid).Properties.MouseWheelDelta;
             if (mouseDelta > 0)
