@@ -6,8 +6,11 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.UI;
+using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using ReFiler;
 
@@ -96,6 +99,44 @@ namespace ReFiler
                 return inputTextBox.Text;
             else
                 return "";
+        }
+
+        public async void UpdateInfobar()
+        {
+            try
+            {
+                StorageFile file = model.LoadedFiles[model.FileIndex].file;
+                string info = "(" + (model.FileIndex + 1) + "/" + model.LoadedFiles.Count + ")";
+
+                BasicProperties basicProperties = await file.GetBasicPropertiesAsync();
+                info += " - " + FilerModel.BytesToString((long) basicProperties.Size);
+
+                if (FilerModel.IsImageExtension(file.Name) && file.FileType.ToLower() != ".gif")
+                {
+                    BitmapImage dimensions = (BitmapImage) view.window.imgMainContent.Source;
+                    int height = dimensions.PixelHeight;
+                    int width = dimensions.PixelWidth;
+                    info += " - ( " + width+ " x " + height + " )";
+
+                    if (height < 1000)
+                    {
+                        view.window.Infobar.FontStyle = FontStyle.Italic;
+                        view.window.Infobar.Foreground = new SolidColorBrush(Colors.Coral);
+                    }
+                    else
+                    {
+                        view.window.Infobar.FontStyle = FontStyle.Normal;
+                        view.window.Infobar.Foreground = new SolidColorBrush(Colors.White);
+                    }
+                }
+
+                string location = file.Path.Replace(model.RootFolder.folder.Path, model.RootFolder.folder.Name);
+                view.window.SetInfobar(info + "\n" + location);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
 
@@ -194,6 +235,8 @@ namespace ReFiler
                         view.window.imgMainContent.Source = img;
                     }
                 }
+
+                UpdateInfobar();
             }
             catch (Exception e)
             {

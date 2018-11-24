@@ -53,6 +53,11 @@ namespace ReFiler
             appView.Title = text;
         }
 
+        public void SetInfobar(string text)
+        {
+            Infobar.Text = text;
+        }
+
 
         public void RefreshFolderList()
         {

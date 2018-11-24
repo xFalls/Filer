@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -18,6 +19,8 @@ namespace ReFiler
         public int FileIndex { get; private set; }
         public bool Loaded { get; private set; }
         public bool KeyBlockingMode;
+
+        public string TypeOfFile;
 
 
         public void LoadContext(Folder folder)
@@ -57,6 +60,17 @@ namespace ReFiler
         {
             return (source.EndsWith(".png") || source.EndsWith(".jpg") || source.EndsWith(".jpeg") ||
                     source.EndsWith(".webp") || source.EndsWith(".gif") || source.EndsWith(".bmp"));
+        }
+
+        public static String BytesToString(long byteCount)
+        {
+            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            if (byteCount == 0)
+                return "0" + suf[0];
+            long bytes = Math.Abs(byteCount);
+            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
+            return (Math.Sign(byteCount) * num).ToString(CultureInfo.InvariantCulture) + suf[place];
         }
 
 

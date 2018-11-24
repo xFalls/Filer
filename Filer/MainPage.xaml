@@ -18,7 +18,15 @@
 
         <GridView x:Name="FileList" x:FieldModifier="public" ItemsSource="{Binding Files}" IsItemClickEnabled="True" SelectionMode="None" BorderThickness="0,0,0,0" Opacity="0"/>
 
-        <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Stretch="Uniform" Source="Assets/SplashScreen.png" RequestedTheme="Default"/>
+        <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,40" VerticalAlignment="Stretch" Stretch="Uniform" RequestedTheme="Default"/>
+        
+        <TextBlock x:Name="Infobar" x:FieldModifier="public" VerticalAlignment="Bottom" Height="40" Padding="10,0,0,0" FontFamily="Segoe UI">
+            <TextBlock.FocusVisualPrimaryBrush>
+                <AcrylicBrush TintColor="{ThemeResource SystemBaseHighColor}"/>
+            </TextBlock.FocusVisualPrimaryBrush>
+            (1/32) - 32MB - (2002 x 1206) <LineBreak></LineBreak>
+            Edits/Path/Relative
+        </TextBlock>
 
         <!--Home menu-->
         <Grid>
@@ -26,15 +34,14 @@
         </Grid>
 
         <!--Folder hierarchy-->
-        <Grid Padding="0" Width="350" HorizontalAlignment="Left" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited" ManipulationMode="TranslateRailsX" >
+        <Grid Padding="0" Width="350" HorizontalAlignment="Left" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited">
             <Grid.Background>
-                <SolidColorBrush Color="Black" Opacity="0"/>
+                <SolidColorBrush Color="White" Opacity="0"/>
             </Grid.Background>
-
-            <ScrollViewer Name="FolderList" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Visibility="Collapsed">
+            <ScrollViewer Name="FolderList" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Visibility="Collapsed" RequestedTheme="Default">
                 <StackPanel Name="FolderPanel" Orientation="Vertical" HorizontalAlignment="Stretch">
                     <StackPanel.Background>
-                        <AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}" TintOpacity="0.2"/>
+                        <AcrylicBrush TintColor="{ThemeResource SystemAccentColorDark3}" TintOpacity="0.25" BackgroundSource="Backdrop" Opacity="1"/>
                     </StackPanel.Background>
                 </StackPanel>
             </ScrollViewer>
