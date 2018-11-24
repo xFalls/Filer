@@ -9,13 +9,16 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using ReFiler;
 using ReFiler.Annotations;
@@ -34,6 +37,9 @@ namespace ReFiler
         private readonly FilerModel model;
         private readonly FilerController controller;
 
+        private SolidColorBrush setBrush = new SolidColorBrush(Colors.DeepSkyBlue);
+        private SolidColorBrush artistBrush = new SolidColorBrush(Colors.GreenYellow);
+
 
         public MainPage()
         {
@@ -45,6 +51,9 @@ namespace ReFiler
             controller = new FilerController(model, view);
 
             SetTitle("ReFiler");
+
+            model.UnloadAll();
+            MostRecentlyOpened();
         }
 
         public void SetTitle(string text)
@@ -68,6 +77,9 @@ namespace ReFiler
         public void BuildFolderList(Folder folder, int depth)
         {
             depth++;
+
+            string text = folder.Name;
+
             Button folderButton = new Button
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -79,6 +91,15 @@ namespace ReFiler
             folderButton.Click += FolderButton_Click;
             folderButton.RightTapped += FolderButton_RightClick;
 
+            // Color folders based on content
+            if (text.StartsWith("[Set]"))
+            {
+                folderButton.Foreground = setBrush;
+            } else if (text.StartsWith("[Artist]"))
+            {
+                folderButton.Foreground = artistBrush;
+            }
+
             FolderPanel.Children.Add(folderButton);
 
             foreach (Folder folderChild in folder.FolderChildren)
@@ -87,18 +108,67 @@ namespace ReFiler
             }
         }
 
+        public async void MostRecentlyOpened()
+        {
+            StorageItemMostRecentlyUsedList mru = StorageApplicationPermissions.MostRecentlyUsedList;
+            RecentFoldersPanel.Children.Clear();
+
+            foreach (AccessListEntry entry in mru.Entries)
+            {
+                string mruToken = entry.Token;
+                string mruMetadata = entry.Metadata;
+                IStorageFolder item = await mru.GetFolderAsync(mruToken);
+                // The type of item will tell you whether it's a file or a folder.
+
+                Button folderButton = new Button
+                {
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                    Content = item.Name,
+                    Tag = item
+                };
+                folderButton.Click += RecentFolderButton_Click;
+                RecentFoldersPanel.Children.Add(folderButton);
+            }
+        }
+
         public void HideMainMenu()
         {
             AddFolderFromHome.Visibility = Visibility.Collapsed;
+            RecentFoldersPanel.Visibility = Visibility.Collapsed;
         }
 
         public void ShowMainMenu()
         {
             AddFolderFromHome.Visibility = Visibility.Visible;
+            RecentFoldersPanel.Visibility = Visibility.Visible;
         }
 
 
         //// Window events /////////////////////////////////////////////////////////
+
+        // Load folder represented by clicked button
+        private async void RecentFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            StorageFolder folder = (StorageFolder)((Button)e.OriginalSource).Tag;
+
+            if (folder == null) return;
+            Folder rootFolder = new Folder(folder, null);
+            Task t = model.GetFolderStructure(folder, rootFolder);
+            await t;
+
+            model.RootFolder = rootFolder;
+            controller.LoadNewFolder(model.RootFolder);
+
+            var mru = StorageApplicationPermissions.MostRecentlyUsedList;
+            mru.Add(folder, folder.Path);
+
+            if (model.Loaded)
+            {
+                HideMainMenu();
+            }
+        }
+
 
         // Load folder represented by clicked button
         private async void FolderButton_Click(object sender, RoutedEventArgs e)
@@ -252,9 +322,9 @@ namespace ReFiler
                     controller.PrefixRemove();
                     break;
 
-                // TODO: Refresh?
+                // Refresh
                 case VirtualKey.F5:
-                    
+                    controller.Refresh();
                     break;
 
                 // Return to home
