@@ -7,8 +7,11 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -40,8 +43,15 @@ namespace ReFiler
             model = new FilerModel();
             FilerView view = new FilerView(model, this);
             controller = new FilerController(model, view);
+
+            SetTitle("ReFiler");
         }
 
+        public void SetTitle(string text)
+        {
+            ApplicationView appView = ApplicationView.GetForCurrentView();
+            appView.Title = text;
+        }
 
 
         public void RefreshFolderList()
@@ -62,6 +72,7 @@ namespace ReFiler
                 Tag = folder
             };
             folderButton.Click += FolderButton_Click;
+            folderButton.RightTapped += FolderButton_RightClick;
 
             FolderPanel.Children.Add(folderButton);
 
@@ -71,14 +82,73 @@ namespace ReFiler
             }
         }
 
+        public void HideMainMenu()
+        {
+            AddFolderFromHome.Visibility = Visibility.Collapsed;
+        }
+
+        public void ShowMainMenu()
+        {
+            AddFolderFromHome.Visibility = Visibility.Visible;
+        }
+
 
         //// Window events /////////////////////////////////////////////////////////
 
         // Load folder represented by clicked button
-        private void FolderButton_Click(object sender, RoutedEventArgs e)
+        private async void FolderButton_Click(object sender, RoutedEventArgs e)
         {
             Folder clicked = (Folder) ((Button) e.OriginalSource).Tag;
+
+
+            clicked.ListOfFiles.Clear();
+            IReadOnlyList<IStorageItem> items = await clicked.folder.GetItemsAsync();
+
+            foreach (IStorageItem item in items)
+            {
+                if (item is StorageFile)
+                {
+                    // Add found files
+                    clicked.AddFiles(new File((StorageFile)item));
+                }
+            }
+
             controller.LoadNewFolder(clicked);
+
+            
+        }
+
+        // Load folder represented by clicked button
+        private async void FolderButton_RightClick(object sender, RightTappedRoutedEventArgs e)
+        {
+            try
+            {
+                Folder clicked = (Folder)((Button)sender).Tag;
+                File fileToMove = model.ActiveFolder.ListOfFiles[model.FileIndex];
+
+                if (model.ActiveFolder.ListOfFiles.Count == 0) return;
+
+                await fileToMove.file.MoveAsync(clicked.folder, fileToMove.file.Name, 
+                    NameCollisionOption.GenerateUniqueName);
+
+                clicked.ListOfFiles.Add(fileToMove);
+                //clicked.ListOfFiles.Sort();
+                model.ActiveFolder.ListOfFiles.RemoveAt(model.FileIndex);
+                model.LoadedFiles.RemoveAt(model.FileIndex);
+                
+
+                if (model.FileIndex >= model.LoadedFiles.Count)
+                {
+                    controller.Move(-1);
+                }
+
+                controller.RefreshView();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                controller.RefreshView();
+            }
         }
 
 
@@ -128,7 +198,7 @@ namespace ReFiler
                     if (items[0] is StorageFolder folder)
                     {
                         Folder rootFolder = new Folder((StorageFolder) items[0], null);
-                        Task t = GetFolderStructure(folder, rootFolder);
+                        Task t = model.GetFolderStructure(folder, rootFolder);
                         await t;
 
                         model.RootFolder = rootFolder;
@@ -139,44 +209,61 @@ namespace ReFiler
             }
         }
 
-        // Goes through a folder and its subfolders adding each directory and file to a list
-        private async Task GetFolderStructure(IStorageFolder folder, Folder parent)
-        {
-            IReadOnlyList<IStorageItem> items = await folder.GetItemsAsync();
-
-            foreach (IStorageItem item in items)
-            {
-                if (item is StorageFolder)
-                {
-                    // Add folder, and scan it as well
-                    Folder foundFolder = new Folder((StorageFolder) item, parent);
-                    parent.AddFolder(foundFolder);
-
-                    Task t = GetFolderStructure((StorageFolder) item, foundFolder);
-                    await t;
-                }
-                else
-                {
-                    // Add found files
-                    parent.AddFiles(new File((StorageFile) item));
-                }
-            }
-        }
-
 
         // Handles keyboard inputs
         private void Page_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs e)
         {
+            if (model.KeyBlockingMode) return;
+
             switch (e.VirtualKey)
             {
+                // Next file
                 case VirtualKey.Right:
                     controller.Move(1);
                     break;
+
+                // Previous file
                 case VirtualKey.Left:
                     controller.Move(-1);
                     break;
+
+                // TODO: Open manual
+                case VirtualKey.F1:
+                    
+                    break;
+
+                // Rename
+                case VirtualKey.F2:
+                    controller.RenameFile();
+                    break;
+
+                // Append +
+                case VirtualKey.F3:
+                    controller.PrefixAdd();
+                    break;
+
+                // Remove +
+                case VirtualKey.F4:
+                    controller.PrefixRemove();
+                    break;
+
+                // TODO: Refresh?
+                case VirtualKey.F5:
+                    
+                    break;
+
+                // Return to home
+                case VirtualKey.F6:
+                    controller.LoadMainMenu();
+                    break;
+
+                // TODO: Fullscreen
+                case VirtualKey.F11:
+                    
+                    break;
             }
         }
+
 
         // Allows for navigation through scrolling
         private void Grid_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
@@ -199,6 +286,12 @@ namespace ReFiler
         private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             FolderList.Visibility = Visibility.Collapsed;
+        }
+
+        // Add a new folder
+        private void AddFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            controller.NewFolder();
         }
     }
 }

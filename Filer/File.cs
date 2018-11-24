@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -14,6 +13,11 @@ namespace ReFiler
         public File(StorageFile file)
         {
             this.file = file;
+        }
+
+        public async void Rename()
+        {
+            
         }
     }
 }

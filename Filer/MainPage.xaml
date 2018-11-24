@@ -10,7 +10,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" SizeChanged="Page_SizeChanged" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
 
 
-    <Grid x:Name="ContentGrid" x:FieldModifier="public" AllowDrop="True" DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" PointerWheelChanged="Grid_PointerWheelChanged">
+    <Grid x:Name="ContentGrid" x:FieldModifier="public" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" PointerWheelChanged="Grid_PointerWheelChanged">
         <Grid.Background>
             <AcrylicBrush TintColor="#CC000000" TintOpacity="1" BackgroundSource="HostBackdrop" Opacity="0.75"/>
         </Grid.Background>
@@ -20,8 +20,13 @@
 
         <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Stretch="Uniform" Source="Assets/SplashScreen.png" RequestedTheme="Default"/>
 
+        <!--Home menu-->
+        <Grid>
+            <Button Name="AddFolderFromHome" HorizontalAlignment="Center" Height="32" VerticalAlignment="Top" Margin="0,119,0,0" Click="AddFolderButton_Click">Add folder...</Button>
+        </Grid>
+
         <!--Folder hierarchy-->
-        <Grid Padding="0" Width="350" HorizontalAlignment="Left" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited" >
+        <Grid Padding="0" Width="350" HorizontalAlignment="Left" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited" ManipulationMode="TranslateRailsX" >
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0"/>
             </Grid.Background>
