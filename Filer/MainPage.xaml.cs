@@ -298,5 +298,19 @@ namespace ReFiler
         {
             controller.NewFolder();
         }
+
+        // Right click content to open it
+        private async void ImgMainContent_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            try
+            {
+                StorageFile file = model.LoadedFiles[model.FileIndex].file;
+                await Launcher.LaunchFileAsync(file);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("Failed launching file: " + error);
+            }
+        }
     }
 }

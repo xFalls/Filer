@@ -18,7 +18,7 @@
 
         <GridView x:Name="FileList" x:FieldModifier="public" ItemsSource="{Binding Files}" IsItemClickEnabled="True" SelectionMode="None" BorderThickness="0,0,0,0" Opacity="0"/>
 
-        <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,40" VerticalAlignment="Stretch" Stretch="Uniform" RequestedTheme="Default"/>
+        <Image x:Name="imgMainContent" x:FieldModifier="public"  HorizontalAlignment="Stretch" Margin="0,0,0,40" VerticalAlignment="Stretch" Stretch="Uniform" RequestedTheme="Default" RightTapped="ImgMainContent_RightTapped"/>
         
         <TextBlock x:Name="Infobar" x:FieldModifier="public" VerticalAlignment="Bottom" Height="40" Padding="10,0,0,0" FontFamily="Segoe UI">
             <TextBlock.FocusVisualPrimaryBrush>
